@@ -1,0 +1,220 @@
+<html>
+  <head>
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.24.0/babel.js"></script>
+    <style>
+      body{
+        margin: 0;
+        font-size: 1.5em;
+        text-align: center;
+        background: black;
+        color:white;
+      }
+      .Pagina {
+        max-width: 860px;
+        margin: 40px auto;
+      }
+      button{
+        background: none;
+        border: 2px solid white;
+        padding: 6px 12px;
+        border-radius: 4px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1em;
+      }
+      button:hover{
+        background: red;
+        color: white;
+      }
+      .cartas-grid{
+        position: relative;
+        left: -17%;
+        margin-top: 30px;
+        margin-left: 40px;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-gap: 20px;
+      }
+      .carta{
+        position: relative;
+        width: 250px;
+        height: 250px;
+      }
+      .front{
+        margin-top: 40px;
+        height: 250px;
+        width: 250px;
+        border-radius: 4px;
+        border: 2px solid white;
+        
+      }
+      .Back{
+        margin-top: 40px;
+        height: 250px;
+        width: 250px;
+        border-radius: 4px;
+        border: 2px solid white;
+      }
+      .carta .front {
+        transform: rotateY(90deg);
+        transition: all ease-in 0.2s;
+        position: absolute;
+        
+      }
+      .flipped .front {
+        transform: rotateY(0deg);
+        transition-delay: 0.2s;
+      }
+      .carta .Back{
+        transition: all ease-in 0.2s;
+        transition-delay: 0.2s
+      }
+      .flipped .Back{
+        transform: rotateY(90deg);
+        transition-delay: 0s;
+      }
+      p {
+        position:absolute;
+        left: 15%;
+        font-size: 40px;
+      }
+     
+      
+    
+    </style>
+  </head>
+  <body>
+    
+    <div id='root'></div>
+    <script type="text/babel">
+      
+      
+      const ImagenesCartas = [
+        { src:"Neon.png" , matched: false},
+        { src: "Jett.png" , matched: false},
+        { src: "Sova.png" , matched: false},
+        { src: "Viper.png" , matched: false},
+        { src: "Yoru.png" , matched: false},
+        { src: "Omen.png" , matched: false},
+        { src: "Killjoy.png" , matched: false},
+        { src: "Raze.png" , matched: false}
+      ]
+
+
+      function Pagina() {
+        const [cartas,setCartas] = React.useState([])
+        const [turnos,setTurnos] = React.useState(0)
+        const [OP1,setOP1] = React.useState(null)
+        const [OP2,setOP2] = React.useState(null)
+        const [disabled,setDisaled] = React.useState(false)
+        const [correcto,setCorrecto] = React.useState(0)
+        // Revolver Cartas
+        const revolverCartas = () => {
+          const rCartas = [...ImagenesCartas, ...ImagenesCartas]
+            .sort(() => Math.random() - 0.5)
+            .map((carta) => ({...carta, id: Math.random() }))
+
+          setOP1(null)
+          setOP2(null)
+          setCartas(rCartas)
+          setTurnos(0)
+          setCorrecto(0)
+        }
+
+      
+        //Choice
+        const handleChoice = (carta) => {
+          OP1 ? setOP2(carta) : setOP1(carta)
+
+        }
+
+        //Carta individual
+        function Singlecard({carta,handleChoice,flipped,disabled}) {
+
+          const handleClick = () =>{
+            if (!disabled){
+              handleChoice(carta)
+            }
+            
+          }
+          
+          return (
+            <div className="carta">
+                  <div className={flipped ? "flipped": ""}>
+                    <img className="front" src={carta.src} alt ="card-front"/>
+                    <img className="Back" src="Valorant.png" onClick={handleClick} alt ="card-back"/>
+                  </div>
+            </div> 
+          )
+        }
+
+
+        //comparar 2 cartas
+        React.useEffect(() => {
+          if (OP1 && OP2) {
+            setDisaled(true)
+            if (OP1.src === OP2.src){
+              setCartas(prevCartas => {
+                return prevCartas.map(carta => {
+                  if (carta.src === OP1.src){
+                    setCorrecto(a => a +1)
+                    return {...carta, matched:true, } 
+                  } else {
+                    return carta
+                  }
+                })
+              })
+              resetTurn()
+            } else{
+              
+              setTimeout(()=> resetTurn(),1000)
+            }
+          }
+        }, [OP1,OP2])
+
+        //reset
+        const resetTurn = () => {
+          setOP1(null)
+          setOP2(null)
+          setTurnos(prevTurno => prevTurno + 1)
+          setDisaled(false)
+          
+        }
+        
+        React.useEffect(() =>{
+          revolverCartas()
+        }, [])
+
+        React.useEffect(() => {
+          if(correcto === 16){
+            window.alert("Has ganado")}
+          },[correcto])
+  
+      
+        return (
+          <div className="Pagina">
+            <h1> Memoria </h1>
+            <button onClick={revolverCartas}>New Game</button>
+            <p>Turnos: {turnos}</p>
+
+            <div className="cartas-grid">
+              {cartas.map(carta => (
+                 <Singlecard key={carta.id} carta={carta} handleChoice={handleChoice} flipped = {carta === OP1 || carta === OP2 || carta.matched} disabled={disabled} /> 
+            ))}
+            </div>
+            
+          </div>
+        )
+      }
+
+      ReactDOM.render(
+        <Pagina/>,
+        document.getElementById('root')
+      )
+
+    </script>
+  </body>
+</html>
