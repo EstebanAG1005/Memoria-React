@@ -105,7 +105,24 @@
         { src: "Raze.png" , matched: false}
       ]
 
+      function Singlecard({carta,handleChoice,flipped,disabled}) {
 
+const handleClick = () =>{
+  if (!disabled){
+    handleChoice(carta)
+  }
+  
+}
+
+return (
+  <div className="carta">
+        <div className={flipped ? "flipped": ""}>
+          <img className="front" src={carta.src} alt ="card-front"/>
+          <img className="Back" src="Valorant.png" onClick={handleClick} alt ="card-back"/>
+        </div>
+  </div> 
+)
+}
       function Pagina() {
         const [cartas,setCartas] = React.useState([])
         const [turnos,setTurnos] = React.useState(0)
@@ -135,24 +152,7 @@
         }
 
         //Carta individual
-        function Singlecard({carta,handleChoice,flipped,disabled}) {
-
-          const handleClick = () =>{
-            if (!disabled){
-              handleChoice(carta)
-            }
-            
-          }
-          
-          return (
-            <div className="carta">
-                  <div className={flipped ? "flipped": ""}>
-                    <img className="front" src={carta.src} alt ="card-front"/>
-                    <img className="Back" src="Valorant.png" onClick={handleClick} alt ="card-back"/>
-                  </div>
-            </div> 
-          )
-        }
+        
 
 
         //comparar 2 cartas
@@ -197,7 +197,7 @@
             window.alert("Has ganado")}
           },[correcto])
   
-      
+        console.log(cartas)
         return (
           <div className="Pagina">
             <h1> Memoria </h1>
